@@ -1,10 +1,12 @@
-# Local AI/agent context (keep private for public repo)
-.cline/
-.copilot/
-.github/
+# Local runtime & temporary files (not tracked)
 .beads/
-docs/
-AGENTS.md
+node_modules/
+.pnpm-store/
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
 
 # Environment and secrets
 .env
