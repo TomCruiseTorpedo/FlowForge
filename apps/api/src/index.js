@@ -38,6 +38,12 @@ function loadNodeOntology() {
 // Initialize ontology at startup
 let nodeOntology = loadNodeOntology();
 
+if (!nodeOntology.triggers?.length || !nodeOntology.actions?.length) {
+  console.error(
+    "FlowForge API: node ontology failed to load (missing or invalid packages/llm/data/node_ontology.json). Validation will reject all workflows."
+  );
+}
+
 /**
  * Validate workflow structure according to business rules
  */
