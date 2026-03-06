@@ -1,0 +1,303 @@
+{
+  "version": "1.0.0",
+  "description": "Few-shot examples for LLM training on FlowForge workflow generation. Each example maps a natural language prompt to a structured workflow with trigger, nodes, and connections matching the OpenAPI schema.",
+  "metadata": {
+    "source": "planning-05 and planning-06",
+    "count": 8,
+    "schema_version": "OpenAPI 3.1.0 (WorkflowGraph, WorkflowNode, WorkflowEdge)"
+  },
+  "examples": [
+    {
+      "id": "example-001",
+      "prompt": "When I upload a YouTube video, create 3 tweets and a LinkedIn post",
+      "trigger": "youtube_upload",
+      "nodes": [
+        {
+          "id": "node-trigger-youtube",
+          "type": "trigger",
+          "label": "YouTube Upload"
+        },
+        {
+          "id": "node-fetch-transcript",
+          "type": "action",
+          "label": "Fetch Transcript"
+        },
+        {
+          "id": "node-generate-tweets",
+          "type": "action",
+          "label": "Generate 3 Tweets"
+        },
+        {
+          "id": "node-generate-linkedin",
+          "type": "action",
+          "label": "Generate LinkedIn Post"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-youtube",
+          "target": "node-fetch-transcript"
+        },
+        {
+          "source": "node-fetch-transcript",
+          "target": "node-generate-tweets"
+        },
+        {
+          "source": "node-fetch-transcript",
+          "target": "node-generate-linkedin"
+        }
+      ]
+    },
+    {
+      "id": "example-002",
+      "prompt": "When someone fills out my contact form, add them to Google Sheets, notify Slack, and send them a welcome email",
+      "trigger": "webform_submission",
+      "nodes": [
+        {
+          "id": "node-trigger-form",
+          "type": "trigger",
+          "label": "Contact Form Submission"
+        },
+        {
+          "id": "node-save-sheets",
+          "type": "action",
+          "label": "Save to Google Sheets"
+        },
+        {
+          "id": "node-notify-slack",
+          "type": "action",
+          "label": "Notify Slack"
+        },
+        {
+          "id": "node-send-email",
+          "type": "action",
+          "label": "Send Welcome Email"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-form",
+          "target": "node-save-sheets"
+        },
+        {
+          "source": "node-trigger-form",
+          "target": "node-notify-slack"
+        },
+        {
+          "source": "node-trigger-form",
+          "target": "node-send-email"
+        }
+      ]
+    },
+    {
+      "id": "example-003",
+      "prompt": "When a new GitHub issue is created, send me an email notification and create a task in my project management tool",
+      "trigger": "github_issue",
+      "nodes": [
+        {
+          "id": "node-trigger-github",
+          "type": "trigger",
+          "label": "GitHub Issue Created"
+        },
+        {
+          "id": "node-send-email",
+          "type": "action",
+          "label": "Send Email Notification"
+        },
+        {
+          "id": "node-create-task",
+          "type": "action",
+          "label": "Create Project Task"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-github",
+          "target": "node-send-email"
+        },
+        {
+          "source": "node-trigger-github",
+          "target": "node-create-task"
+        }
+      ]
+    },
+    {
+      "id": "example-004",
+      "prompt": "When I publish a blog post, generate a summary and share it on Twitter and LinkedIn",
+      "trigger": "new_blog_post",
+      "nodes": [
+        {
+          "id": "node-trigger-blog",
+          "type": "trigger",
+          "label": "Blog Post Published"
+        },
+        {
+          "id": "node-summarize",
+          "type": "action",
+          "label": "Summarize Article"
+        },
+        {
+          "id": "node-generate-twitter",
+          "type": "action",
+          "label": "Generate Twitter Thread"
+        },
+        {
+          "id": "node-generate-linkedin",
+          "type": "action",
+          "label": "Generate LinkedIn Post"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-blog",
+          "target": "node-summarize"
+        },
+        {
+          "source": "node-summarize",
+          "target": "node-generate-twitter"
+        },
+        {
+          "source": "node-summarize",
+          "target": "node-generate-linkedin"
+        }
+      ]
+    },
+    {
+      "id": "example-005",
+      "prompt": "When a new lead is captured from a form, fetch their company data and update the CRM record",
+      "trigger": "webform_submission",
+      "nodes": [
+        {
+          "id": "node-trigger-form",
+          "type": "trigger",
+          "label": "Form Submission"
+        },
+        {
+          "id": "node-fetch-company",
+          "type": "action",
+          "label": "Fetch Company Data"
+        },
+        {
+          "id": "node-update-crm",
+          "type": "action",
+          "label": "Update CRM Record"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-form",
+          "target": "node-fetch-company"
+        },
+        {
+          "source": "node-fetch-company",
+          "target": "node-update-crm"
+        }
+      ]
+    },
+    {
+      "id": "example-006",
+      "prompt": "When a podcast episode is published, transcribe the audio and generate a blog post",
+      "trigger": "podcast_publish",
+      "nodes": [
+        {
+          "id": "node-trigger-podcast",
+          "type": "trigger",
+          "label": "Podcast Episode Published"
+        },
+        {
+          "id": "node-transcribe",
+          "type": "action",
+          "label": "Transcribe Audio"
+        },
+        {
+          "id": "node-generate-post",
+          "type": "action",
+          "label": "Generate Blog Post"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-podcast",
+          "target": "node-transcribe"
+        },
+        {
+          "source": "node-transcribe",
+          "target": "node-generate-post"
+        }
+      ]
+    },
+    {
+      "id": "example-007",
+      "prompt": "When someone signs up for my newsletter, add them to Mailchimp and send them a welcome email",
+      "trigger": "newsletter_signup",
+      "nodes": [
+        {
+          "id": "node-trigger-signup",
+          "type": "trigger",
+          "label": "Newsletter Signup"
+        },
+        {
+          "id": "node-add-mailchimp",
+          "type": "action",
+          "label": "Add to Mailchimp"
+        },
+        {
+          "id": "node-send-welcome",
+          "type": "action",
+          "label": "Send Welcome Email"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-signup",
+          "target": "node-add-mailchimp"
+        },
+        {
+          "source": "node-trigger-signup",
+          "target": "node-send-welcome"
+        }
+      ]
+    },
+    {
+      "id": "example-008",
+      "prompt": "When a video is uploaded, generate captions and create a social media post with a thumbnail",
+      "trigger": "video_upload",
+      "nodes": [
+        {
+          "id": "node-trigger-video",
+          "type": "trigger",
+          "label": "Video Upload"
+        },
+        {
+          "id": "node-transcribe",
+          "type": "action",
+          "label": "Transcribe Audio"
+        },
+        {
+          "id": "node-generate-captions",
+          "type": "action",
+          "label": "Generate Captions"
+        },
+        {
+          "id": "node-generate-post",
+          "type": "action",
+          "label": "Generate Social Post"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-video",
+          "target": "node-transcribe"
+        },
+        {
+          "source": "node-transcribe",
+          "target": "node-generate-captions"
+        },
+        {
+          "source": "node-trigger-video",
+          "target": "node-generate-post"
+        }
+      ]
+    }
+  ]
+}
