@@ -1,5 +1,7 @@
 # Local AI/agent context (keep private for public repo)
 .cline/
+.copilot/
+.github/
 .beads/
 docs/
 AGENTS.md
