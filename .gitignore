@@ -1,0 +1,33 @@
+# Local AI/agent context (keep private for public repo)
+.cline/
+.beads/
+docs/
+AGENTS.md
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and runtime artifacts
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Node artifacts (future scaffold)
+node_modules/
+dist/
+build/
+coverage/
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
