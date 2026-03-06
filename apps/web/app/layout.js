@@ -1,3 +1,5 @@
+import './globals.css';
+
 export const metadata = {
   title: "FlowForge",
   description: "Forge automations from plain English.",

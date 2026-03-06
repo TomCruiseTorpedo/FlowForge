@@ -1,0 +1,184 @@
+[
+  {
+    "id": "pattern-001",
+    "name": "Social Media Content Distribution",
+    "description": "When content is published, distribute across multiple social media platforms",
+    "prompt_examples": [
+      "When I upload a YouTube video, create 3 tweets and a LinkedIn post",
+      "Post to Twitter and LinkedIn when I publish a blog post",
+      "Share new podcast episodes on social media"
+    ],
+    "workflow": {
+      "trigger": "youtube_upload",
+      "nodes": [
+        {
+          "id": "node-trigger-youtube",
+          "type": "trigger",
+          "label": "YouTube Upload"
+        },
+        {
+          "id": "node-generate-tweets",
+          "type": "action",
+          "label": "Generate 3 Tweets"
+        },
+        {
+          "id": "node-generate-linkedin",
+          "type": "action",
+          "label": "Generate LinkedIn Post"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-youtube",
+          "target": "node-generate-tweets"
+        },
+        {
+          "source": "node-trigger-youtube",
+          "target": "node-generate-linkedin"
+        }
+      ]
+    },
+    "explanation": "This pattern demonstrates parallel content generation from a single trigger. The YouTube upload triggers both tweet generation and LinkedIn post generation simultaneously."
+  },
+  {
+    "id": "pattern-002",
+    "name": "Issue Management Workflow",
+    "description": "When a GitHub issue is created, send notifications and create follow-up tasks",
+    "prompt_examples": [
+      "Send me an email when I get a new GitHub issue",
+      "Create a task in my project management tool when a bug is reported",
+      "Notify the team when a high-priority issue is created"
+    ],
+    "workflow": {
+      "trigger": "github_issue",
+      "nodes": [
+        {
+          "id": "node-trigger-github",
+          "type": "trigger",
+          "label": "GitHub Issue Created"
+        },
+        {
+          "id": "node-send-email",
+          "type": "action",
+          "label": "Send Email Notification"
+        },
+        {
+          "id": "node-create-task",
+          "type": "action",
+          "label": "Create Project Task"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-github",
+          "target": "node-send-email"
+        },
+        {
+          "source": "node-trigger-github",
+          "target": "node-create-task"
+        }
+      ]
+    },
+    "explanation": "This pattern shows how to handle issue notifications with multiple parallel actions. The GitHub issue trigger sends both an email notification and creates a task in a project management system."
+  },
+  {
+    "id": "pattern-003",
+    "name": "Content Publishing Pipeline",
+    "description": "When a blog post is published, distribute content and notify stakeholders",
+    "prompt_examples": [
+      "When I publish a blog post, send it to my newsletter subscribers",
+      "Post new articles to social media and notify my team",
+      "Create a summary and share it when I publish content"
+    ],
+    "workflow": {
+      "trigger": "blog_post_published",
+      "nodes": [
+        {
+          "id": "node-trigger-blog",
+          "type": "trigger",
+          "label": "Blog Post Published"
+        },
+        {
+          "id": "node-generate-summary",
+          "type": "action",
+          "label": "Generate Content Summary"
+        },
+        {
+          "id": "node-send-newsletter",
+          "type": "action",
+          "label": "Send Newsletter"
+        },
+        {
+          "id": "node-post-social",
+          "type": "action",
+          "label": "Post to Social Media"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-blog",
+          "target": "node-generate-summary"
+        },
+        {
+          "source": "node-generate-summary",
+          "target": "node-send-newsletter"
+        },
+        {
+          "source": "node-generate-summary",
+          "target": "node-post-social"
+        }
+      ]
+    },
+    "explanation": "This pattern demonstrates a sequential workflow where content is first summarized, then distributed through multiple channels. The summary serves as input for both newsletter and social media posts."
+  },
+  {
+    "id": "pattern-004",
+    "name": "Email Processing Workflow",
+    "description": "When specific emails are received, trigger automated responses and actions",
+    "prompt_examples": [
+      "When I receive an email from a client, add them to my CRM",
+      "Process support emails and create tickets automatically",
+      "Send automated responses to common inquiries"
+    ],
+    "workflow": {
+      "trigger": "email_received",
+      "nodes": [
+        {
+          "id": "node-trigger-email",
+          "type": "trigger",
+          "label": "Email Received"
+        },
+        {
+          "id": "node-process-content",
+          "type": "action",
+          "label": "Process Email Content"
+        },
+        {
+          "id": "node-create-ticket",
+          "type": "action",
+          "label": "Create Support Ticket"
+        },
+        {
+          "id": "node-send-response",
+          "type": "action",
+          "label": "Send Automated Response"
+        }
+      ],
+      "connections": [
+        {
+          "source": "node-trigger-email",
+          "target": "node-process-content"
+        },
+        {
+          "source": "node-process-content",
+          "target": "node-create-ticket"
+        },
+        {
+          "source": "node-process-content",
+          "target": "node-send-response"
+        }
+      ]
+    },
+    "explanation": "This pattern shows sequential processing of email content followed by parallel actions. The email is first processed to extract information, then used to create a ticket and send an automated response."
+  }
+]

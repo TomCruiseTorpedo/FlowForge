@@ -1,0 +1,267 @@
+{
+  "version": "1.0.0",
+  "description": "Node ontology for FlowForge workflow generation",
+  "nodes": {
+    "triggers": [
+      {
+        "id": "youtube_upload",
+        "name": "YouTube Upload",
+        "description": "Triggers when a new video is uploaded to YouTube",
+        "category": "video",
+        "parameters": {
+          "channel_id": {
+            "type": "string",
+            "description": "YouTube channel ID to monitor",
+            "required": true
+          },
+          "playlist_id": {
+            "type": "string",
+            "description": "Optional playlist ID to monitor",
+            "required": false
+          }
+        },
+        "output": {
+          "video_id": "string",
+          "title": "string",
+          "description": "string",
+          "thumbnail_url": "string",
+          "upload_time": "string"
+        }
+      },
+      {
+        "id": "github_issue",
+        "name": "GitHub Issue",
+        "description": "Triggers when a new issue is created in a GitHub repository",
+        "category": "development",
+        "parameters": {
+          "repository": {
+            "type": "string",
+            "description": "Repository in format owner/repo",
+            "required": true
+          },
+          "labels": {
+            "type": "array",
+            "description": "Optional list of labels to filter issues",
+            "items": { "type": "string" },
+            "required": false
+          }
+        },
+        "output": {
+          "issue_number": "number",
+          "title": "string",
+          "body": "string",
+          "author": "string",
+          "labels": "array",
+          "created_at": "string"
+        }
+      },
+      {
+        "id": "blog_post_published",
+        "name": "Blog Post Published",
+        "description": "Triggers when a new blog post is published",
+        "category": "content",
+        "parameters": {
+          "blog_url": {
+            "type": "string",
+            "description": "URL of the blog to monitor",
+            "required": true
+          },
+          "rss_feed": {
+            "type": "string",
+            "description": "RSS feed URL for the blog",
+            "required": false
+          }
+        },
+        "output": {
+          "post_title": "string",
+          "post_url": "string",
+          "author": "string",
+          "publish_date": "string",
+          "content_preview": "string"
+        }
+      },
+      {
+        "id": "email_received",
+        "name": "Email Received",
+        "description": "Triggers when a new email is received",
+        "category": "communication",
+        "parameters": {
+          "email_address": {
+            "type": "string",
+            "description": "Email address to monitor",
+            "required": true
+          },
+          "subject_filter": {
+            "type": "string",
+            "description": "Optional subject line filter",
+            "required": false
+          }
+        },
+        "output": {
+          "from": "string",
+          "subject": "string",
+          "body": "string",
+          "received_time": "string",
+          "attachments": "array"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "id": "generate_tweets",
+        "name": "Generate Tweets",
+        "description": "Generates multiple tweets based on input content",
+        "category": "social_media",
+        "parameters": {
+          "content": {
+            "type": "string",
+            "description": "Content to generate tweets from",
+            "required": true
+          },
+          "count": {
+            "type": "number",
+            "description": "Number of tweets to generate (1-10)",
+            "default": 3,
+            "minimum": 1,
+            "maximum": 10
+          },
+          "tone": {
+            "type": "string",
+            "description": "Tone of the tweets",
+            "enum": ["professional", "casual", "humorous", "informative"],
+            "default": "professional"
+          }
+        },
+        "output": {
+          "tweets": "array"
+        }
+      },
+      {
+        "id": "generate_linkedin_post",
+        "name": "Generate LinkedIn Post",
+        "description": "Generates a LinkedIn post based on input content",
+        "category": "social_media",
+        "parameters": {
+          "content": {
+            "type": "string",
+            "description": "Content to generate LinkedIn post from",
+            "required": true
+          },
+          "tone": {
+            "type": "string",
+            "description": "Tone of the LinkedIn post",
+            "enum": ["professional", "thought_leadership", "announcement"],
+            "default": "professional"
+          }
+        },
+        "output": {
+          "post": "string"
+        }
+      },
+      {
+        "id": "send_email",
+        "name": "Send Email",
+        "description": "Sends an email to specified recipients",
+        "category": "communication",
+        "parameters": {
+          "to": {
+            "type": "array",
+            "description": "List of email addresses to send to",
+            "items": { "type": "string" },
+            "required": true
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject line of the email",
+            "required": true
+          },
+          "body": {
+            "type": "string",
+            "description": "Body content of the email",
+            "required": true
+          },
+          "cc": {
+            "type": "array",
+            "description": "Optional CC recipients",
+            "items": { "type": "string" },
+            "required": false
+          }
+        },
+        "output": {
+          "sent": "boolean",
+          "message_id": "string"
+        }
+      },
+      {
+        "id": "create_github_issue",
+        "name": "Create GitHub Issue",
+        "description": "Creates a new issue in a GitHub repository",
+        "category": "development",
+        "parameters": {
+          "repository": {
+            "type": "string",
+            "description": "Repository in format owner/repo",
+            "required": true
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the issue",
+            "required": true
+          },
+          "body": {
+            "type": "string",
+            "description": "Body content of the issue",
+            "required": true
+          },
+          "labels": {
+            "type": "array",
+            "description": "Optional labels for the issue",
+            "items": { "type": "string" },
+            "required": false
+          }
+        },
+        "output": {
+          "issue_number": "number",
+          "issue_url": "string"
+        }
+      },
+      {
+        "id": "post_to_twitter",
+        "name": "Post to Twitter",
+        "description": "Posts content to Twitter/X",
+        "category": "social_media",
+        "parameters": {
+          "content": {
+            "type": "string",
+            "description": "Content to post (max 280 characters)",
+            "required": true
+          },
+          "media": {
+            "type": "array",
+            "description": "Optional media attachments",
+            "items": { "type": "string" },
+            "required": false
+          }
+        },
+        "output": {
+          "tweet_id": "string",
+          "post_url": "string"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "allowed_connections": [
+      {
+        "from_category": "triggers",
+        "to_category": "actions",
+        "description": "Triggers can connect to actions"
+      }
+    ],
+    "validation_rules": {
+      "max_nodes": 10,
+      "max_connections_per_node": 5,
+      "required_trigger": true
+    }
+  }
+}
