@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import WorkflowCanvas from '../components/WorkflowCanvas';
 
 export default function Home() {
   const [prompt, setPrompt] = useState('');
@@ -96,10 +97,10 @@ export default function Home() {
 
           {workflow && (
             <div className="mt-8 p-6 bg-slate-50 rounded-lg">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Generated Workflow</h3>
-              <pre className="bg-white p-4 rounded-lg overflow-auto max-h-96">
-                {JSON.stringify(workflow, null, 2)}
-              </pre>
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">Workflow Canvas</h3>
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <WorkflowCanvas workflow={workflow} />
+              </div>
             </div>
           )}
         </div>
