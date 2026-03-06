@@ -10,6 +10,7 @@
     "lint": "echo 'Lint placeholder'"
   },
   "dependencies": {
+    "@flowforge/llm": "workspace:*",
     "@flowforge/workflow-engine": "workspace:*",
     "express": "^4.21.0"
   }

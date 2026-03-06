@@ -1,5 +1,6 @@
 import express from "express";
 import { convertToN8n } from "@flowforge/workflow-engine";
+import { getNodeOntology } from "@flowforge/llm";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -10,22 +11,32 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok", service: "flowforge-api" });
 });
 
-// Load node ontology for validation
-const nodeOntology = {
-  triggers: [
-    "youtube_upload",
-    "github_issue", 
-    "blog_post_published",
-    "email_received"
-  ],
-  actions: [
-    "generate_tweets",
-    "generate_linkedin_post",
-    "send_email",
-    "create_github_issue",
-    "post_to_twitter"
-  ]
-};
+/**
+ * Load node ontology from packages/llm/data/node_ontology.json.
+ * Ontology is single source of truth for valid node types.
+ */
+function loadNodeOntology() {
+  const ontology = getNodeOntology();
+  
+  // Extract trigger IDs from the ontology structure
+  const triggerIds = (ontology?.nodes?.triggers || [])
+    .map(t => t.id)
+    .filter(Boolean);
+  
+  // Extract action IDs from the ontology structure
+  const actionIds = (ontology?.nodes?.actions || [])
+    .map(a => a.id)
+    .filter(Boolean);
+  
+  return {
+    triggers: triggerIds,
+    actions: actionIds,
+    fullOntology: ontology
+  };
+}
+
+// Initialize ontology at startup
+let nodeOntology = loadNodeOntology();
 
 /**
  * Validate workflow structure according to business rules
