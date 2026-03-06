@@ -1,5 +1,5 @@
 import express from "express";
-// import { convertToN8n } from "@flowforge/workflow-engine";
+import { convertToN8n } from "@flowforge/workflow-engine";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
