@@ -1,5 +1,19 @@
-# Local runtime & temporary files (not tracked)
+# -----------------------------------------------------------------------------
+# Private / do not publish (public repo must not expose these)
+# -----------------------------------------------------------------------------
+.agents/
 .beads/
+.claude/
+.cline/
+.github/
+.groupcode/
+docs/
+AGENTS.md
+*.code-workspace
+
+# -----------------------------------------------------------------------------
+# Local runtime & temporary files (not tracked)
+# -----------------------------------------------------------------------------
 node_modules/
 .pnpm-store/
 
