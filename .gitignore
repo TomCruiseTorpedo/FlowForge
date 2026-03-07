@@ -1,25 +1,34 @@
 # -----------------------------------------------------------------------------
+# DO NOT REMOVE THIS BLOCK — Required for public repo safety.
+# If a script or tool rewrites .gitignore, re-add this block immediately.
+# Recovery and prevention docs live in docs/recovery/ (docs/ is below).
 # Private / do not publish (public repo must not expose these)
+# These are also synced to the internal repo for private backup.
 # -----------------------------------------------------------------------------
 .agents/
 .beads/
 .claude/
 .cline/
+.clinerules/
 .github/
 .groupcode/
 docs/
 AGENTS.md
+RECOVERY.md
+RECOVERY-PREVENTION.md
 *.code-workspace
+scripts/internal/
+.vscode/
 
 # -----------------------------------------------------------------------------
-# Local runtime & temporary files (not tracked)
+# Local runtime & temporary files (not tracked, NOT privately synced)
+# Large/regenerable; no need in repo or in internal backup.
 # -----------------------------------------------------------------------------
 node_modules/
 .pnpm-store/
 
 # OS/editor noise
 .DS_Store
-.vscode/
 .idea/
 
 # Environment and secrets
@@ -34,11 +43,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-
-# OS/editor noise
-.DS_Store
-.vscode/
-.idea/
 
 # Node artifacts (future scaffold)
 node_modules/
