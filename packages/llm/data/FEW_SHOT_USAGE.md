@@ -193,4 +193,4 @@ Example template:
 - **Workflow patterns**: `packages/llm/data/workflow_patterns.json`
 - **OpenAPI schema**: `docs/api/openapi.yaml`
 - **LLM generator code**: `packages/llm/src/index.js`
-- **Planning docs**: `docs/planning/05-planning.md`, `docs/planning/06-planning.md`, `docs/planning/08-planning.md`
+- **Planning docs**: `docs/planning/` — 01-project-overview-and-build, 02-automation-knowledge-base, 03-few-shot-and-node-ontology, 04-execution-pipeline, 05-agent-architecture, 06-prompts-and-blueprint, 07-solo-mvp-and-hackathon (extracted from ChatGPT conversation).
