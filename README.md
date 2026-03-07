@@ -41,15 +41,32 @@ Pipeline:
 
 `Prompt -> LLM Workflow Generator -> Workflow Parser -> Graph Renderer -> Export`
 
-## Quick Start (Scaffold Stage)
+## Quick Start
 
-This repository is currently in scaffolding stage. Initial setup is focused on documentation, memory bank, and multi-agent workflow discipline.
+### How to run the app locally
 
-Planned implementation commands:
+You need **two processes**: the API and the web app.
 
-- `pnpm install`
-- `pnpm --filter web dev`
-- `pnpm --filter api start`
+1. **Install dependencies** (once):
+   ```bash
+   pnpm install
+   ```
+
+2. **Terminal 1 — API** (port 4000):
+   ```bash
+   pnpm --filter api dev
+   ```
+   Or: `pnpm start` (from repo root).
+
+3. **Terminal 2 — Web app** (port 3000):
+   ```bash
+   pnpm dev
+   ```
+   Or: `pnpm --filter web dev`.
+
+4. **Open** [http://localhost:3000](http://localhost:3000) in your browser. The UI calls the API at [http://localhost:4000](http://localhost:4000) for Generate and Export.
+
+**Health check:** [http://localhost:4000/health](http://localhost:4000/health) should return `{"status":"ok","service":"flowforge-api"}`.
 
 ## Multi-Agent Development
 

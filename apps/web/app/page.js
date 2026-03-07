@@ -19,9 +19,10 @@ export default function Home() {
 
     setLoading(true);
     setError('');
+    setWorkflow(null); // Clear previous result on new submit
     
     try {
-      const response = await fetch('http://localhost:4000/generate-workflow', {
+      const response = await fetch(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/generate-workflow', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,13 +31,15 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
       setWorkflow(data);
     } catch (err) {
       setError(err.message || 'Failed to generate workflow');
+      setWorkflow(null);
     } finally {
       setLoading(false);
     }
@@ -49,7 +52,7 @@ export default function Home() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:4000/export', {
+      const response = await fetch(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/export', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +61,8 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -88,9 +92,16 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 mb-4">FlowForge</h1>
-          <p className="text-lg text-slate-600">
-            Forge automations from plain English
+          <p className="text-lg text-slate-600 mb-6">
+            Transform natural language into powerful automations
           </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-sm text-blue-800">
+              <strong>Tip:</strong> Describe your automation in plain English. 
+              Examples: "When I upload a YouTube video, create 3 tweets and a LinkedIn post" 
+              or "Send me a summary email every Monday morning"
+            </p>
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8">
@@ -112,7 +123,27 @@ export default function Home() {
 
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                {error}
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">Something went wrong</h3>
+                    <div className="mt-2 text-sm text-red-700">
+                      <p>{error}</p>
+                    </div>
+                    <div className="mt-4">
+                      <button
+                        onClick={() => setError('')}
+                        className="inline-flex items-center rounded-md border border-transparent bg-red-100 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
