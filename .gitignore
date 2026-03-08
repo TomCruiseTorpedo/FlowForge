@@ -49,8 +49,9 @@ node_modules/
 dist/
 build/
 coverage/
+.next/
 
-# Dolt database files (added by bd init)
-.dolt/
+# Lovable re-integration source (clone; do not commit)
+flowforge-focus/
 *.db
 .pnpm-store/

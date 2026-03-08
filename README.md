@@ -2,7 +2,9 @@
 
 Forge automations from plain English.
 
-FlowForge (GitHub repo: `FlowForge`) is an AI-powered automation builder that converts natural language requests into structured workflows, visual node graphs, and exportable automation templates.
+FlowForge is an AI-powered automation builder that converts natural language requests into structured workflows, visual node graphs, and exportable automation templates.
+
+**About this build:** This repository is a **prototype hackathon build**. It is fully runnable locally and demonstrates the core flow (prompt → workflow → n8n export), but it is not a production release. Expect rough edges and MVP scope.
 
 ## Project Vision
 
@@ -43,6 +45,8 @@ Pipeline:
 
 ## Quick Start
 
+**Who this is for:** Anyone who has cloned the repo (e.g. a hackathon judge or a first-time user). You need **Node.js 20+** and **pnpm** installed.
+
 ### How to run the app locally
 
 You need **two processes**: the API and the web app.
@@ -64,11 +68,13 @@ You need **two processes**: the API and the web app.
    ```
    Or: `pnpm --filter web dev`.
 
-4. **Open** [http://localhost:3000](http://localhost:3000) in your browser. The UI calls the API at [http://localhost:4000](http://localhost:4000) for Generate and Export.
+4. **Open** [http://localhost:3000](http://localhost:3000) in your browser. The UI talks to the API at [http://localhost:4000](http://localhost:4000) for Generate and Export.
+
+Optional: to point the web app at a different API URL, copy `apps/web/.env.example` to `apps/web/.env.local` and set `NEXT_PUBLIC_API_URL`. Default is `http://localhost:4000`.
 
 **Health check:** [http://localhost:4000/health](http://localhost:4000/health) should return `{"status":"ok","service":"flowforge-api"}`.
 
-**Testing n8n export:** See [How to test FlowForge exports in n8n](docs/n8n-testing-guide.md).
+**Testing n8n export:** See [How to test FlowForge exports in n8n](docs/n8n-testing-guide.md) (if the `docs/` folder is present in your clone).
 
 ### For judges / MVP demo (≤120s)
 
@@ -77,30 +83,31 @@ You need **two processes**: the API and the web app.
 3. Click **Generate Workflow**, then **Export to n8n** (downloads `flowforge-n8n-export.json`).
 4. In n8n, import that JSON. The workflow is ready except for **credentials**: add your own Slack, LLM API key (e.g. OpenAI-compatible), and LinkedIn in n8n. No other changes needed.
 
-See [docs/mvp-demo.md](docs/mvp-demo.md) for the full demo script and “only add credentials” story.
+See [docs/mvp-demo.md](docs/mvp-demo.md) for the full demo script and “only add credentials” story (if `docs/` is present in your clone).
+
+## Tech stack (to run FlowForge)
+
+- **Node.js** 20+
+- **pnpm** (see root `package.json` for `packageManager`)
+- **Next.js 15** (web app), **Express** (API), **React Flow** (canvas), **Tailwind CSS** (styling)
+
+Built with: Cursor, Antigravity, VS Code Copilot, Lovable (credited in the product).
 
 ## Multi-Agent Development
 
-This project is designed for parallel work across multiple IDEs/agentic tools.
-
-- Canonical local context: `.cline/memory-bank/`
-- Multi-tool coordination guide: `.cline/AGENTIC-TOOLS-FAQ.md`
-- Decision/task tracking: Beads (`bd`)
+This project can be used with multiple IDEs and agentic tools. Decision and task tracking may use Beads (`bd`). For contributor context, see project docs if present (e.g. `docs/` or internal wiki).
 
 ## Documentation Structure
 
-All project documentation assets are organized under `docs/`:
+If the `docs/` folder is present in your clone:
 
-- `docs/planning/` — planning documents and ideation assets
-- `docs/design/` — UX/UI and product design docs (including `docs/design/assets/` for graphical assets)
-- `docs/architecture/` — system architecture docs
-- `docs/notes/` — development notes and working memos
-- `docs/failure-investigations/` — issue postmortems and debugging investigations
-- `docs/api/` — Swagger/OpenAPI contract and API docs
+- `docs/planning/` — planning and ideation
+- `docs/design/` — UX/UI and design (including `docs/design/assets/` for graphical assets, if any)
+- `docs/architecture/` — system architecture
+- `docs/notes/` — development notes
+- `docs/api/` — OpenAPI contract and API docs
 
-API contract source of truth:
-
-- `docs/api/openapi.yaml`
+API contract source of truth: `docs/api/openapi.yaml`.
 
 ## Roadmap
 
@@ -125,10 +132,13 @@ Long term:
 
 ## Repository
 
-- GitHub: `https://github.com/TomCruiseTorpedo/FlowForge`
-- Local path: `/Users/jj/FlowForge`
-- Product name: **FlowForge AI Automations**
+- **GitHub:** Clone from your fork or the canonical repo (e.g. `https://github.com/<your-org>/FlowForge`).
+- **Product name:** FlowForge AI Automations
+
+## Graphical assets
+
+The web app **does not require** any custom graphical assets (logos, images) to run. Everything works with Tailwind and inline SVG. If you add your own assets (e.g. in `apps/web/public/`), you may protect them with a copyright notice; see **[ASSETS-LICENSE.md](ASSETS-LICENSE.md)** for a template.
 
 ## License
 
-Apache License 2.0 (see `LICENSE`).
+Apache License 2.0 (see [LICENSE](LICENSE)).
