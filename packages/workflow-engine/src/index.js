@@ -3,6 +3,21 @@
  * Maps internal workflow to React Flow nodes/edges and n8n JSON.
  */
 
+import { buildSlackToLinkedInN8n } from './buildSlackToLinkedInN8n.js';
+
+/**
+ * Returns true when workflow is exactly Slack trigger + LinkedIn action (no Tweet/X).
+ * Used to emit the full prompt-contract template (LLM + Code node) instead of generic nodes.
+ */
+function isSlackToLinkedInOnly(workflow) {
+  if (!workflow?.nodes?.length || !workflow.connections?.length) return false;
+  const labels = workflow.nodes.map(n => n.label?.toLowerCase() || '');
+  const hasSlack = labels.some(l => l.includes('slack'));
+  const hasLinkedIn = labels.some(l => l.includes('linkedin'));
+  const hasTweet = labels.some(l => l.includes('tweet') || l.includes('twitter') || l === 'x');
+  return hasSlack && hasLinkedIn && !hasTweet && workflow.nodes.length === 2;
+}
+
 /**
  * Convert FlowForge workflow to n8n JSON format
  * @param {Object} workflow - Internal workflow representation
@@ -17,10 +32,36 @@ export function convertToN8n(workflow) {
     throw new Error('Invalid workflow: missing required fields');
   }
 
-  // Map internal nodes to n8n nodes
-  const n8nNodes = workflow.nodes.map((node, index) => {
-    // n8n requires position as {x, y} object, not an array
-    const position = { x: index * 250 + 100, y: 300 };
+  // Full template: Slack → LLM → Code (K2 strip) → LinkedIn (prompt contract; user adds credentials)
+  if (isSlackToLinkedInOnly(workflow)) {
+    return buildSlackToLinkedInN8n(workflow);
+  }
+
+  // Map internal nodes to n8n nodes. Match official n8n templates: UUID id, position [x,y] only (no positionEnd).
+  // If first node is YouTube trigger, prepend Manual Trigger so the workflow is runnable and the YouTube node shows its logo.
+  // Slack trigger is a real trigger in n8n — no Manual Trigger prepended.
+  const firstNode = workflow.nodes[0];
+  const isFirstYouTubeTrigger = firstNode?.type === 'trigger' && firstNode?.label?.toLowerCase().includes('youtube');
+  const isFirstSlackTrigger = firstNode?.type === 'trigger' && firstNode?.label?.toLowerCase().includes('slack');
+
+  const n8nNodes = [];
+  let nodeIndex = 0;
+
+  if (isFirstYouTubeTrigger) {
+    n8nNodes.push({
+      id: generateId(),
+      name: "When clicking 'Test workflow'",
+      type: 'n8n-nodes-base.manualTrigger',
+      typeVersion: 1,
+      position: [100 + nodeIndex * 420, 150 + nodeIndex * 80],
+      parameters: {}
+    });
+    nodeIndex++;
+  }
+
+  workflow.nodes.forEach((node, index) => {
+    const n8nId = generateId();
+    const position = [100 + nodeIndex * 420, 150 + nodeIndex * 80];
 
     // Map node types to n8n node types
     let n8nType, n8nParameters = {}, typeVersion = 1;
@@ -28,10 +69,14 @@ export function convertToN8n(workflow) {
     switch (node.type) {
       case 'trigger':
         if (node.label.toLowerCase().includes('youtube')) {
-          n8nType = 'n8n-nodes-base.youtubeTrigger';
-          n8nParameters = {
-            event: 'videoUploaded'
-          };
+          // n8n built-in node type is youTube (capital T); youtube (lowercase) can show fallback icon
+          n8nType = 'n8n-nodes-base.youTube';
+          n8nParameters = { resource: 'video', operation: 'get', videoId: '={{ $json.videoId || "dQw4w9WgXcQ" }}' };
+          typeVersion = 1;
+        } else if (node.label.toLowerCase().includes('slack')) {
+          // n8n Slack Trigger: configure event (e.g. message posted to channel) and channel in n8n
+          n8nType = 'n8n-nodes-base.slackTrigger';
+          n8nParameters = {};
           typeVersion = 1;
         } else {
           n8nType = 'n8n-nodes-base.manualTrigger';
@@ -42,14 +87,14 @@ export function convertToN8n(workflow) {
 
       case 'action':
         if (node.label.toLowerCase().includes('tweet') || node.label.toLowerCase().includes('twitter') || node.label.toLowerCase().includes(' x ') || node.label.toLowerCase() === 'x') {
-          // Use the current X (Twitter) node — n8n-nodes-base.twitter was deprecated and renamed
-          n8nType = 'n8n-nodes-base.x';
+          // n8n docs use n8n-nodes-base.twitter (X node); typeVersion 2 for current API so the X logo shows
+          n8nType = 'n8n-nodes-base.twitter';
           n8nParameters = {
             resource: 'tweet',
             operation: 'create',
             text: 'Generated tweet content'
           };
-          typeVersion = 1;
+          typeVersion = 2;
         } else if (node.label.toLowerCase().includes('linkedin')) {
           n8nType = 'n8n-nodes-base.linkedIn';
           n8nParameters = {
@@ -82,18 +127,25 @@ export function convertToN8n(workflow) {
         typeVersion = 4.2;
     }
 
-    return {
-      id: node.id,
+    n8nNodes.push({
+      id: n8nId,
       name: node.label,
       type: n8nType,
       typeVersion,
       position,
       parameters: n8nParameters
-    };
+    });
+    nodeIndex++;
   });
 
-  // Map internal connections to n8n connections
+  // Map internal connections to n8n connections (use node names as keys)
   const n8nConnections = {};
+  const firstName = isFirstYouTubeTrigger ? n8nNodes[1].name : n8nNodes[0].name; // first workflow node's n8n name
+
+  if (isFirstYouTubeTrigger && n8nNodes.length > 1) {
+    n8nConnections[n8nNodes[0].name] = { main: [[{ node: firstName, type: 'main', index: 0 }]] };
+  }
+  // Slack trigger: no prepended node; connections from workflow.connections are sufficient
 
   workflow.connections.forEach(connection => {
     const sourceNode = workflow.nodes.find(n => n.id === connection.source);

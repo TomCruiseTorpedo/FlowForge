@@ -1,10 +1,12 @@
 import express from "express";
+import cors from "cors";
 import { convertToN8n } from "@flowforge/workflow-engine";
 import { getNodeOntology } from "@flowforge/llm";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+app.use(cors({ origin: true })); // Allow browser origin (e.g. localhost:3000 → 4000)
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
@@ -93,19 +95,39 @@ app.post("/generate-workflow", (req, res) => {
     });
   }
 
-  // Stub workflow matching OpenAPI WorkflowGraph + nodes + edges
-  const nodes = [
-    { id: "node-trigger-youtube", type: "trigger", label: "YouTube Upload" },
-    { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
-    { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
-  ];
-  const edges = [
-    { source: "node-trigger-youtube", target: "node-generate-tweets" },
-    { source: "node-trigger-youtube", target: "node-generate-linkedin" },
-  ];
+  // Stub workflow: Slack→LinkedIn only (prompt contract template), or Slack→Tweet+LinkedIn, or YouTube→Tweet+LinkedIn
+  const promptLower = (prompt || '').toLowerCase();
+  const useSlackTrigger = promptLower.includes('slack');
+  const wantsTweet = promptLower.includes('tweet') || promptLower.includes('twitter') || /\bx\b/.test(promptLower);
+  const slackToLinkedInOnly = useSlackTrigger && !wantsTweet;
+
+  const nodes = slackToLinkedInOnly
+    ? [
+        { id: "node-trigger-slack", type: "trigger", label: "Slack Message" },
+        { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
+      ]
+    : useSlackTrigger
+      ? [
+          { id: "node-trigger-slack", type: "trigger", label: "Slack Message" },
+          { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
+          { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
+        ]
+      : [
+          { id: "node-trigger-youtube", type: "trigger", label: "YouTube Upload" },
+          { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
+          { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
+        ];
+
+  const triggerId = useSlackTrigger ? "node-trigger-slack" : "node-trigger-youtube";
+  const edges = slackToLinkedInOnly
+    ? [{ source: triggerId, target: "node-generate-linkedin" }]
+    : [
+        { source: triggerId, target: "node-generate-tweets" },
+        { source: triggerId, target: "node-generate-linkedin" },
+      ];
   const workflow = {
-    id: "wf-stub-001",
-    trigger: "youtube_upload",
+    id: slackToLinkedInOnly ? "wf-stub-slack-linkedin-001" : useSlackTrigger ? "wf-stub-slack-001" : "wf-stub-001",
+    trigger: slackToLinkedInOnly ? "slack_message" : useSlackTrigger ? "slack_message" : "youtube_upload",
     nodes,
     connections: edges,
   };

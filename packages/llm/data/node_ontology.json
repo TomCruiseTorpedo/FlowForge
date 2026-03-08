@@ -104,6 +104,30 @@
           "received_time": "string",
           "attachments": "array"
         }
+      },
+      {
+        "id": "slack_message",
+        "name": "Slack Message",
+        "description": "Triggers when a new message is posted to a Slack channel (or on mention)",
+        "category": "communication",
+        "parameters": {
+          "channel": {
+            "type": "string",
+            "description": "Channel to watch (optional; leave empty for all or use event filter)",
+            "required": false
+          },
+          "events": {
+            "type": "array",
+            "description": "Events to listen for (e.g. message posted to channel, mention)",
+            "required": false
+          }
+        },
+        "output": {
+          "text": "string",
+          "channel": "string",
+          "user": "string",
+          "ts": "string"
+        }
       }
     ],
     "actions": [

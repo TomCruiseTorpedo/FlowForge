@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import WorkflowCanvas from '../components/WorkflowCanvas';
 
+const API_BASE = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL)
+  ? process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')
+  : 'http://localhost:4000';
+
 export default function Home() {
   const [prompt, setPrompt] = useState('');
   const [workflow, setWorkflow] = useState(null);
@@ -22,7 +26,7 @@ export default function Home() {
     setWorkflow(null); // Clear previous result on new submit
     
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/generate-workflow', {
+      const response = await fetch(`${API_BASE}/generate-workflow`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +56,7 @@ export default function Home() {
     setError('');
 
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/export', {
+      const response = await fetch(`${API_BASE}/export`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,11 +99,9 @@ export default function Home() {
           <p className="text-lg text-slate-600 mb-6">
             Transform natural language into powerful automations
           </p>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto">
-            <p className="text-sm text-blue-800">
-              <strong>Tip:</strong> Describe your automation in plain English. 
-              Examples: "When I upload a YouTube video, create 3 tweets and a LinkedIn post" 
-              or "Send me a summary email every Monday morning"
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-sm text-amber-900">
+              <strong>Demo:</strong> Try &quot;When I post a message in Slack, create a LinkedIn post&quot; — then Export to n8n, import the file in n8n, and add your Slack, LLM API key, and LinkedIn credentials to run it.
             </p>
           </div>
         </div>
@@ -114,7 +116,7 @@ export default function Home() {
                 id="prompt"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="e.g., When I upload a YouTube video, create 3 tweets and a LinkedIn post"
+                placeholder="e.g., When I post a message in Slack, create a LinkedIn post"
                 className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={4}
                 disabled={loading}
@@ -195,6 +197,9 @@ export default function Home() {
                   )}
                 </button>
               </div>
+              <p className="text-sm text-slate-600 mb-3">
+                Import the downloaded JSON in n8n, then add your Slack, LLM API key, and LinkedIn credentials to run the workflow.
+              </p>
               <div className="border border-slate-200 rounded-lg overflow-hidden">
                 <WorkflowCanvas workflow={workflow} />
               </div>

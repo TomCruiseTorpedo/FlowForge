@@ -12,6 +12,7 @@
   "dependencies": {
     "@flowforge/llm": "workspace:*",
     "@flowforge/workflow-engine": "workspace:*",
+    "cors": "^2.8.5",
     "express": "^4.21.0"
   }
 }
