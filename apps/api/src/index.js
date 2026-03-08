@@ -101,30 +101,49 @@ app.post("/generate-workflow", (req, res) => {
   const wantsTweet = promptLower.includes('tweet') || promptLower.includes('twitter') || /\bx\b/.test(promptLower);
   const slackToLinkedInOnly = useSlackTrigger && !wantsTweet;
 
-  const nodes = slackToLinkedInOnly
-    ? [
-        { id: "node-trigger-slack", type: "trigger", label: "Slack Message" },
-        { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
-      ]
-    : useSlackTrigger
-      ? [
-          { id: "node-trigger-slack", type: "trigger", label: "Slack Message" },
-          { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
-          { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
-        ]
-      : [
-          { id: "node-trigger-youtube", type: "trigger", label: "YouTube Upload" },
-          { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
-          { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
-        ];
+  let nodes, edges, triggerId;
+  if (slackToLinkedInOnly) {
+    // Layout: main path left→right (Slack → LLM Chain → Code → LinkedIn), OpenAI below chain
+    const DX = 240;
+    const DY = 160;
+    nodes = [
+      { id: "node-trigger-slack", type: "trigger", label: "Slack Message", position: [0, 80] },
+      { id: "node-llm-chain", type: "action", label: "Basic LLM Chain", position: [DX, 80] },
+      { id: "node-openai-model", type: "action", label: "OpenAI Chat Model", position: [DX, 80 + DY] },
+      { id: "node-code-js", type: "action", label: "Code in JavaScript", position: [2 * DX, 80] },
+      { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post", position: [3 * DX, 80] },
+    ];
+    edges = [
+      { source: "node-trigger-slack", target: "node-llm-chain" },
+      { source: "node-llm-chain", target: "node-code-js" },
+      { source: "node-openai-model", target: "node-llm-chain" },
+      { source: "node-code-js", target: "node-generate-linkedin" },
+    ];
+    triggerId = "node-trigger-slack";
+  } else if (useSlackTrigger) {
+    nodes = [
+      { id: "node-trigger-slack", type: "trigger", label: "Slack Message" },
+      { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
+      { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
+    ];
+    edges = [
+      { source: "node-trigger-slack", target: "node-generate-tweets" },
+      { source: "node-trigger-slack", target: "node-generate-linkedin" },
+    ];
+    triggerId = "node-trigger-slack";
+  } else {
+    nodes = [
+      { id: "node-trigger-youtube", type: "trigger", label: "YouTube Upload" },
+      { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
+      { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
+    ];
+    edges = [
+      { source: "node-trigger-youtube", target: "node-generate-tweets" },
+      { source: "node-trigger-youtube", target: "node-generate-linkedin" },
+    ];
+    triggerId = "node-trigger-youtube";
+  }
 
-  const triggerId = useSlackTrigger ? "node-trigger-slack" : "node-trigger-youtube";
-  const edges = slackToLinkedInOnly
-    ? [{ source: triggerId, target: "node-generate-linkedin" }]
-    : [
-        { source: triggerId, target: "node-generate-tweets" },
-        { source: triggerId, target: "node-generate-linkedin" },
-      ];
   const workflow = {
     id: slackToLinkedInOnly ? "wf-stub-slack-linkedin-001" : useSlackTrigger ? "wf-stub-slack-001" : "wf-stub-001",
     trigger: slackToLinkedInOnly ? "slack_message" : useSlackTrigger ? "slack_message" : "youtube_upload",

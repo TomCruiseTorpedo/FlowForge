@@ -271,6 +271,30 @@
           "tweet_id": "string",
           "post_url": "string"
         }
+      },
+      {
+        "id": "basic_llm_chain",
+        "name": "Basic LLM Chain",
+        "description": "LangChain LLM chain for transforming content (used in Slack→LinkedIn template)",
+        "category": "ai",
+        "parameters": {},
+        "output": { "text": "string" }
+      },
+      {
+        "id": "openai_chat_model",
+        "name": "OpenAI Chat Model",
+        "description": "OpenAI-compatible chat model (used as model backend for LLM chain)",
+        "category": "ai",
+        "parameters": {},
+        "output": {}
+      },
+      {
+        "id": "code_in_javascript",
+        "name": "Code in JavaScript",
+        "description": "Runs JavaScript code (e.g. K2 strip) in n8n",
+        "category": "transform",
+        "parameters": {},
+        "output": { "text": "string" }
       }
     ]
   },

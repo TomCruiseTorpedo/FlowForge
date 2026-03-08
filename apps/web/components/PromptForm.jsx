@@ -32,7 +32,7 @@ export default function PromptForm({
           placeholder="e.g., When I post a message in Slack, create a LinkedIn post"
           rows={4}
           disabled={loading}
-          className="resize-none text-base"
+          className="resize-none text-lg min-h-[120px]"
         />
       </div>
       <div className="flex justify-center">
@@ -46,12 +46,12 @@ export default function PromptForm({
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin" />
+                  <Loader2 className="h-8 w-8 animate-spin" />
                   Generating…
                 </>
               ) : (
                 <>
-                  <img src="/icon-generate.png" alt="" className="h-5 w-5 object-contain" />
+                  <img src="/icon-generate.png" alt="" className="h-8 w-8 object-contain" />
                   Generate Workflow
                 </>
               )}

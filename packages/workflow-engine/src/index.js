@@ -6,8 +6,8 @@
 import { buildSlackToLinkedInN8n } from './buildSlackToLinkedInN8n.js';
 
 /**
- * Returns true when workflow is exactly Slack trigger + LinkedIn action (no Tweet/X).
- * Used to emit the full prompt-contract template (LLM + Code node) instead of generic nodes.
+ * Returns true when workflow is Slack→LinkedIn (no Tweet/X).
+ * Accepts either 2-node (legacy) or 5-node (canvas) shape; export always uses full template.
  */
 function isSlackToLinkedInOnly(workflow) {
   if (!workflow?.nodes?.length || !workflow.connections?.length) return false;
@@ -15,7 +15,13 @@ function isSlackToLinkedInOnly(workflow) {
   const hasSlack = labels.some(l => l.includes('slack'));
   const hasLinkedIn = labels.some(l => l.includes('linkedin'));
   const hasTweet = labels.some(l => l.includes('tweet') || l.includes('twitter') || l === 'x');
-  return hasSlack && hasLinkedIn && !hasTweet && workflow.nodes.length === 2;
+  if (!hasSlack || !hasLinkedIn || hasTweet) return false;
+  // 2-node: trigger + action; 5-node: full diagram (Slack, Basic LLM Chain, OpenAI, Code, LinkedIn)
+  const isFullDiagram = workflow.nodes.length === 5 &&
+    labels.some(l => l.includes('basic llm') || l.includes('llm chain')) &&
+    labels.some(l => l.includes('code')) &&
+    labels.some(l => l.includes('openai'));
+  return workflow.nodes.length === 2 || isFullDiagram;
 }
 
 /**

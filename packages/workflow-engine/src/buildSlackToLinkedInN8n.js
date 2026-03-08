@@ -60,6 +60,7 @@ export function buildSlackToLinkedInN8n(workflow) {
       position: [560, 832],
       parameters: {
         model: { __rl: true, value: 'MBZUAI-IFM/K2-Think-v2', mode: 'list', cachedResultName: 'MBZUAI-IFM/K2-Think-v2' },
+        responsesApiEnabled: false,
         options: { maxTokens: 2048 }
       }
     },
@@ -78,8 +79,7 @@ export function buildSlackToLinkedInN8n(workflow) {
       typeVersion: 1,
       position: [1056, 576],
       parameters: {
-        resource: 'post',
-        operation: 'create',
+        person: '',
         text: '={{ $json.text }}',
         additionalFields: {}
       }
@@ -107,7 +107,11 @@ export function buildSlackToLinkedInN8n(workflow) {
     nodes,
     connections,
     active: false,
-    settings: { executionOrder: 'v1' },
+    settings: {
+      executionOrder: 'v1',
+      binaryMode: 'separate',
+      availableInMCP: false
+    },
     versionId: generateId(),
     meta: { templateCredsSetupCompleted: true, instanceId: generateId() },
     tags: [],

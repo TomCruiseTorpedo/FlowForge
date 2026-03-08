@@ -31,15 +31,16 @@ export function getPromptForN8n() {
   return PROMPT_TEMPLATE.replace('{{SOURCE_CONTENT}}', SOURCE_CONTENT_EXPRESSION);
 }
 
-/** Code node script: K2 Think V2 CoT stripping (content after last </think>, FN_CALL= prefix, newline normalize) */
-export const K2_STRIP_JS = `// K2 Think V2: strip CoT and keep only final answer. Aligned with Elite Four strip_k2_cot_for_display.
-// 1) Content after LAST </think> (case-insensitive). 2) Strip FN_CALL=True/False prefix. 3) Normalize newlines.
+/** Code node script: K2 Think V2 CoT stripping (content after last </think>, FN_CALL= prefix, newline normalize). Matches MVP demo. */
+export const K2_STRIP_JS = `// K2 Think V2: strip CoT and keep only final answer. Aligned with Elite Four docs (notes-K2-think-tag-format.md, notes-nanobot-transition-k2.md §4) and strip_k2_cot_for_display behavior.
+// 1) Content after LAST </think> (case-insensitive). 2) Strip FN_CALL=True/False prefix (leading or on last line). 3) Normalize newlines.
 const raw = $json.text;
 if (typeof raw !== 'string') {
   return [{ json: { text: String(raw || '').trim() } }];
 }
 let s = raw.trim();
 
+// 1) Last </think> — K2 quirk: often only closing tag, no opening <think>
 const closeTag = '</think>';
 const tagLen = closeTag.length;
 let lastEnd = -1;
@@ -58,16 +59,18 @@ else {
   s = afterThink || s;
 }
 
+// 2) FN_CALL= prefix (Elite Four: _strip_nanobot_fn_call_prefix)
 const fnCallMatch = s.match(/^\\s*_*FN_CALL=(True|False)\\s+/i);
 if (fnCallMatch) s = s.slice(fnCallMatch[0].length).trim();
 if (/FN_CALL=/i.test(s)) {
   const lines = s.split('\\n');
   for (let i = lines.length - 1; i >= 0; i--) {
-    const m = lines[i].trim().match(/^\\s*_*FN_CALL=(True|False)\\s+([\\s\\S]+)$/);
+    const m = lines[i].trim().match(/^\\s*_*FN_CALL=(True|False)\\s+(.+)$/is);
     if (m) { s = m[2].trim(); break; }
   }
 }
 
+// 3) Collapse 3+ newlines
 s = s.replace(/\\n{3,}/g, '\\n\\n').trim();
 return [{ json: { text: s } }];`;
 

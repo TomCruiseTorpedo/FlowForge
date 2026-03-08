@@ -90,7 +90,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen py-10 sm:py-16">
-      <div className="max-w-4xl mx-auto px-4 space-y-8">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-10 space-y-8">
         <Header />
         <DemoHint onTryPrompt={setPrompt} />
 
