@@ -68,20 +68,25 @@ Pipeline:
 You need **two processes**: the API and the web app.
 
 1. **Install dependencies** (once):
+
    ```bash
    pnpm install
    ```
 
 2. **Terminal 1 — API** (port 4000):
+
    ```bash
    pnpm --filter api dev
    ```
+
    Or: `pnpm start` (from repo root).
 
 3. **Terminal 2 — Web app** (port 3000):
+
    ```bash
    pnpm dev
    ```
+
    Or: `pnpm --filter web dev`.
 
 4. **Open** [http://localhost:3000](http://localhost:3000) in your browser. The UI talks to the API at [http://localhost:4000](http://localhost:4000) for Generate and Export.
@@ -112,7 +117,7 @@ No server-side secrets or API keys are required to run the app; credentials are 
 
 - **Slack → LinkedIn (demo):** Yes. Same structure and node types (Slack Trigger, LLM Chain, Code, LinkedIn); add your Slack, LLM API key, and LinkedIn in n8n and it runs.
 - **YouTube → LinkedIn:** Yes, valid n8n JSON (Manual Trigger → YouTube → LinkedIn). n8n has no native “when I upload a video” trigger; the exported workflow is runnable manually or you can add a Schedule trigger to poll. Structure is correct; credentials needed in n8n.
-- **Marketing (personalize emails):** Yes. Export returns the full **real n8n template** from `templates/personalize-marketing-emails.json` (24 nodes). It was exported from n8n; import and add credentials as needed.
+- **Marketing (personalize emails):** Yes. Export returns the full **real n8n template** reference material from `templates/personalize-marketing-emails.json` (24 nodes). It was sourced from n8n; import and add credentials as needed.
 
 **How robust is open-ended workflow generation?**
 
@@ -138,7 +143,7 @@ The codebase is structured to support more template-based or LLM-driven intents;
 - **Next.js 15** (web app), **Express** (API), **React Flow** (canvas), **Tailwind CSS** (styling)
 - **Developed and tested on:** macOS Sequoia 15.7.4 (Intel x86_64), zsh. Windows and Linux users can run the app with the same Node/pnpm stack but should use the two-terminal `pnpm` workflow instead of the provided shell scripts.
 
-Credits: Cursor, Antigravity, VS Code Copilot, Lovable (see in-app footer).
+With the help of: Cursor, Antigravity, Copilot (VS Code), Lovable (see in-app footer).
 
 ## Roadmap
 
