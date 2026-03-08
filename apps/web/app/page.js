@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { API_BASE } from "@/config/api";
 import Header from "@/components/Header";
 import DemoHint from "@/components/DemoHint";
@@ -16,6 +16,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [exporting, setExporting] = useState(false);
+  const promptInputRef = useRef(null);
+
+  const handleTryPrompt = (suggestedPrompt) => {
+    setPrompt(suggestedPrompt);
+    setTimeout(() => promptInputRef.current?.focus(), 0);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,7 +98,7 @@ export default function Home() {
     <main className="min-h-screen py-10 sm:py-16">
       <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-10 space-y-8">
         <Header />
-        <DemoHint onTryPrompt={setPrompt} />
+        <DemoHint onTryPrompt={handleTryPrompt} />
 
         <Card className="shadow-2xl border border-[hsl(var(--forge-amber-border))] bg-card/95 backdrop-blur-sm ring-1 ring-[hsl(38_92%_50%_/_.15)]">
           <CardContent className="p-6 sm:p-8 space-y-6">
@@ -101,6 +107,7 @@ export default function Home() {
               loading={loading}
               onPromptChange={setPrompt}
               onSubmit={handleSubmit}
+              promptInputRef={promptInputRef}
             />
 
             {error && (

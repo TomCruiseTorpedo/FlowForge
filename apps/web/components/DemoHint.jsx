@@ -32,11 +32,11 @@ export default function DemoHint({ onTryPrompt }) {
                 <button
                   type="button"
                   onClick={() => onTryPrompt?.(prompt)}
-                  className="underline underline-offset-2 hover:opacity-80 transition-opacity cursor-pointer text-left w-full"
+                  className="underline underline-offset-2 hover:opacity-80 transition-opacity cursor-pointer text-left w-full py-0.5 flex flex-wrap items-baseline gap-x-1"
                 >
-                  &quot;{prompt}&quot;
+                  <span>&quot;{prompt}&quot;</span>
+                  <span className="text-[10px] uppercase tracking-wider opacity-75">({label})</span>
                 </button>
-                <span className="text-[10px] uppercase tracking-wider opacity-75 ml-1">({label})</span>
               </li>
             ))}
           </ul>

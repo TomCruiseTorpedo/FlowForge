@@ -32,9 +32,10 @@ function isSlackToLinkedInOnly(workflow) {
  * @param {string} workflow.trigger - Trigger type
  * @param {Array} workflow.nodes - Array of workflow nodes
  * @param {Array} workflow.connections - Array of connections between nodes
+ * @param {Object} [options] - Optional. credentialsFromN8n: parsed n8n workflow JSON to merge credentials (Slack→LinkedIn only).
  * @returns {Object} n8n-compatible workflow JSON
  */
-export function convertToN8n(workflow) {
+export function convertToN8n(workflow, options) {
   if (!workflow) {
     throw new Error('Invalid workflow: missing workflow object');
   }
@@ -48,9 +49,9 @@ export function convertToN8n(workflow) {
     throw new Error('Invalid workflow: missing required fields');
   }
 
-  // Full template: Slack → LLM → Code (K2 strip) → LinkedIn (prompt contract; user adds credentials)
+  // Full template: Slack → LLM → Code (K2 strip) → LinkedIn (prompt contract; optionally merge credentials from demo JSON)
   if (isSlackToLinkedInOnly(workflow)) {
-    return buildSlackToLinkedInN8n(workflow);
+    return buildSlackToLinkedInN8n(workflow, options || {});
   }
 
   // Map internal nodes to n8n nodes. Match official n8n templates: UUID id, position [x,y] only (no positionEnd).

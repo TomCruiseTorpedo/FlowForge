@@ -11,7 +11,11 @@ These scripts are for **macOS with zsh** (tested on Intel (x86_64) MacBook Pro, 
 
 Usage (macOS/zsh): `./scripts/start-servers.sh` then open http://localhost:3000 ; when done, `./scripts/stop-servers.sh`.
 
+## Optional (internal use)
+
+- **`export-slack-linkedin-with-credentials.mjs`** — Builds a Slack→LinkedIn n8n workflow using internal docs (credentials + demo override). Requires `docs/` (gitignored). On a public clone it exits with a short message; use the app's **Export to n8n** for the standard workflow.
+
 ## Verification (run from repo root)
 
-- **`verify-private-paths.sh`** — Ensures all required private paths are listed in the “Private / do not publish” block in `.gitignore`. Exit 0 = OK; 1 = add missing paths and re-run.
+- **`verify-private-paths.sh`** — Ensures all required private paths are listed in the "Private / do not publish" block in `.gitignore`. Exit 0 = OK; 1 = add missing paths and re-run.
 - **`verify-no-private-tracked.sh`** — Fails if any private path is currently tracked. Run before push and after any history rewrite. Exit 0 = OK; if 1, run `git rm --cached <path>` for each listed path (do not force-add).

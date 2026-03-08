@@ -15,6 +15,7 @@ export default function PromptForm({
   loading,
   onPromptChange,
   onSubmit,
+  promptInputRef,
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-5">
@@ -26,6 +27,7 @@ export default function PromptForm({
           Raw ore — your idea in plain English.
         </p>
         <Textarea
+          ref={promptInputRef}
           id="prompt"
           value={prompt}
           onChange={(e) => onPromptChange(e.target.value)}

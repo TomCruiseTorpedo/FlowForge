@@ -1,5 +1,7 @@
 import express from "express";
 import cors from "cors";
+import fs from "fs";
+import path from "path";
 import { convertToN8n } from "@flowforge/workflow-engine";
 import { getNodeOntology } from "@flowforge/llm";
 
@@ -78,6 +80,20 @@ function validateWorkflow(workflow) {
   }
 
   return errors;
+}
+
+const DEMO_CREDENTIALS_JSON_PATH =
+  process.env.FLOWFORGE_DEMO_CREDENTIALS_JSON_PATH ||
+  path.join(process.cwd(), "docs", "FlowForge MVP Demo.json");
+
+function loadDemoCredentialsN8n() {
+  try {
+    const raw = fs.readFileSync(DEMO_CREDENTIALS_JSON_PATH, "utf8");
+    const data = JSON.parse(raw);
+    return data?.nodes ? data : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -199,7 +215,8 @@ app.post("/generate-workflow", (req, res) => {
   // Optionally include n8n export if requested
   if (includeN8nExport) {
     try {
-      const n8nWorkflow = convertToN8n(workflow);
+      const credentialsFromN8n = loadDemoCredentialsN8n();
+      const n8nWorkflow = convertToN8n(workflow, credentialsFromN8n ? { credentialsFromN8n } : undefined);
       response.n8nExport = {
         n8nWorkflow,
         format: 'n8n',
@@ -246,7 +263,8 @@ app.post("/export", (req, res) => {
   }
 
   try {
-    const n8nWorkflow = convertToN8n(workflow);
+    const credentialsFromN8n = loadDemoCredentialsN8n();
+    const n8nWorkflow = convertToN8n(workflow, credentialsFromN8n ? { credentialsFromN8n } : undefined);
 
     return res.status(200).json({
       n8nWorkflow,

@@ -1,6 +1,6 @@
 /**
  * Build full n8n workflow for Slack → LLM → Code (K2 strip) → LinkedIn using the prompt contract.
- * No credentials; user adds Slack, OpenAI-compatible, and LinkedIn in n8n.
+ * Optionally merges credentials (and LinkedIn person) from an existing n8n workflow JSON so the export is ready to run.
  */
 
 import { getPromptForN8n, K2_STRIP_JS } from './prompt-contracts/slack-to-linkedin-post.js';
@@ -13,11 +13,36 @@ function generateId() {
   });
 }
 
+/** Extract credentials (and LinkedIn person) from demo n8n nodes by type. */
+function credentialsFromDemoNodes(demoNodes) {
+  if (!Array.isArray(demoNodes)) return {};
+  const byType = {};
+  for (const node of demoNodes) {
+    const t = node.type;
+    if (!t) continue;
+    if (t === 'n8n-nodes-base.slackTrigger') byType.slackTrigger = node;
+    else if (t === '@n8n/n8n-nodes-langchain.lmChatOpenAi') byType.lmChatOpenAi = node;
+    else if (t === 'n8n-nodes-base.linkedIn') byType.linkedIn = node;
+  }
+  return {
+    slack: byType.slackTrigger?.credentials || null,
+    slackWebhookId: byType.slackTrigger?.webhookId ?? null,
+    openAi: byType.lmChatOpenAi?.credentials || null,
+    linkedIn: byType.linkedIn?.credentials || null,
+    linkedInPerson: byType.linkedIn?.parameters?.person ?? null
+  };
+}
+
 /**
  * @param {Object} workflow - FlowForge workflow (id, trigger, nodes, connections)
+ * @param {Object} [options] - Optional. credentialsFromN8n: parsed n8n workflow JSON with nodes that have credentials.
  * @returns {Object} n8n workflow JSON (nodes include Slack Trigger, Basic LLM Chain, OpenAI Chat Model, Code, LinkedIn)
  */
-export function buildSlackToLinkedInN8n(workflow) {
+export function buildSlackToLinkedInN8n(workflow, options = {}) {
+  const creds = options.credentialsFromN8n?.nodes
+    ? credentialsFromDemoNodes(options.credentialsFromN8n.nodes)
+    : {};
+
   const wfId = workflow?.id || generateId();
   const name = `FlowForge: ${workflow?.trigger || 'slack_message'}`;
 
@@ -38,7 +63,9 @@ export function buildSlackToLinkedInN8n(workflow) {
         trigger: ['app_mention', 'file_share', 'message'],
         watchWorkspace: true,
         options: {}
-      }
+      },
+      ...(creds.slack && { credentials: creds.slack }),
+      ...(creds.slackWebhookId && { webhookId: creds.slackWebhookId })
     },
     {
       id: chainId,
@@ -62,7 +89,8 @@ export function buildSlackToLinkedInN8n(workflow) {
         model: { __rl: true, value: 'MBZUAI-IFM/K2-Think-v2', mode: 'list', cachedResultName: 'MBZUAI-IFM/K2-Think-v2' },
         responsesApiEnabled: false,
         options: { maxTokens: 2048 }
-      }
+      },
+      ...(creds.openAi && { credentials: creds.openAi })
     },
     {
       id: codeId,
@@ -79,10 +107,12 @@ export function buildSlackToLinkedInN8n(workflow) {
       typeVersion: 1,
       position: [1056, 576],
       parameters: {
-        person: '',
-        text: '={{ $json.text }}',
+        person: creds.linkedInPerson != null ? creds.linkedInPerson : '',
+        // Convert literal \n to real newlines (n8n can pass escaped form between nodes / in UI)
+        text: "={{ typeof $json.text === 'string' ? $json.text.replace(/\\\\n/g, '\\n') : $json.text }}",
         additionalFields: {}
-      }
+      },
+      ...(creds.linkedIn && { credentials: creds.linkedIn })
     }
   ];
 
