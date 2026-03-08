@@ -95,14 +95,32 @@ app.post("/generate-workflow", (req, res) => {
     });
   }
 
-  // Stub workflow: Slack→LinkedIn only (prompt contract template), or Slack→Tweet+LinkedIn, or YouTube→Tweet+LinkedIn
+  // Stub workflow: Slack→LinkedIn (full template) when Slack is mentioned; YouTube→LinkedIn when only YouTube; no X/Twitter (paid API).
+  // Template-based: marketing/personalize/customer email → full n8n from templates/personalize-marketing-emails.json
   const promptLower = (prompt || '').toLowerCase();
   const useSlackTrigger = promptLower.includes('slack');
-  const wantsTweet = promptLower.includes('tweet') || promptLower.includes('twitter') || /\bx\b/.test(promptLower);
-  const slackToLinkedInOnly = useSlackTrigger && !wantsTweet;
+  const useYouTubeTrigger = promptLower.includes('youtube') && !useSlackTrigger;
+  const slackToLinkedInOnly = useSlackTrigger; // always full Slack→LinkedIn when Slack mentioned; ignore tweet/twitter/x
+
+  // Marketing/personalization template: keywords that indicate "personalize marketing emails" style workflow
+  const marketingKeywords = ['marketing', 'personalize', 'personalise', 'customer', 'email', 'sentiment', 'coupon', 'newsletter', 'campaign', 'segment'];
+  const useMarketingTemplate = !useSlackTrigger && !useYouTubeTrigger && marketingKeywords.some(kw => promptLower.includes(kw));
 
   let nodes, edges, triggerId;
-  if (slackToLinkedInOnly) {
+  if (useMarketingTemplate) {
+    // Simplified canvas for template-based export: Manual Trigger → Personalize with AI → Send Email (ontology-valid)
+    const DX = 280;
+    nodes = [
+      { id: "node-trigger-manual", type: "trigger", label: "Manual Trigger", position: [0, 100] },
+      { id: "node-personalize", type: "action", label: "Personalize with AI", position: [DX, 100] },
+      { id: "node-send-email", type: "action", label: "Send Email", position: [2 * DX, 100] },
+    ];
+    edges = [
+      { source: "node-trigger-manual", target: "node-personalize" },
+      { source: "node-personalize", target: "node-send-email" },
+    ];
+    triggerId = "node-trigger-manual";
+  } else if (slackToLinkedInOnly) {
     // Layout: main path left→right (Slack → LLM Chain → Code → LinkedIn), OpenAI below chain
     const DX = 240;
     const DY = 160;
@@ -120,33 +138,39 @@ app.post("/generate-workflow", (req, res) => {
       { source: "node-code-js", target: "node-generate-linkedin" },
     ];
     triggerId = "node-trigger-slack";
-  } else if (useSlackTrigger) {
-    nodes = [
-      { id: "node-trigger-slack", type: "trigger", label: "Slack Message" },
-      { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
-      { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
-    ];
-    edges = [
-      { source: "node-trigger-slack", target: "node-generate-tweets" },
-      { source: "node-trigger-slack", target: "node-generate-linkedin" },
-    ];
-    triggerId = "node-trigger-slack";
-  } else {
+  } else if (useYouTubeTrigger) {
     nodes = [
       { id: "node-trigger-youtube", type: "trigger", label: "YouTube Upload" },
-      { id: "node-generate-tweets", type: "action", label: "Generate Tweets" },
       { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post" },
     ];
     edges = [
-      { source: "node-trigger-youtube", target: "node-generate-tweets" },
       { source: "node-trigger-youtube", target: "node-generate-linkedin" },
     ];
     triggerId = "node-trigger-youtube";
+  } else {
+    // Default: offer the full Slack→LinkedIn demo for any other prompt
+    const DX = 240;
+    const DY = 160;
+    nodes = [
+      { id: "node-trigger-slack", type: "trigger", label: "Slack Message", position: [0, 80] },
+      { id: "node-llm-chain", type: "action", label: "Basic LLM Chain", position: [DX, 80] },
+      { id: "node-openai-model", type: "action", label: "OpenAI Chat Model", position: [DX, 80 + DY] },
+      { id: "node-code-js", type: "action", label: "Code in JavaScript", position: [2 * DX, 80] },
+      { id: "node-generate-linkedin", type: "action", label: "Generate LinkedIn Post", position: [3 * DX, 80] },
+    ];
+    edges = [
+      { source: "node-trigger-slack", target: "node-llm-chain" },
+      { source: "node-llm-chain", target: "node-code-js" },
+      { source: "node-openai-model", target: "node-llm-chain" },
+      { source: "node-code-js", target: "node-generate-linkedin" },
+    ];
+    triggerId = "node-trigger-slack";
   }
 
   const workflow = {
-    id: slackToLinkedInOnly ? "wf-stub-slack-linkedin-001" : useSlackTrigger ? "wf-stub-slack-001" : "wf-stub-001",
-    trigger: slackToLinkedInOnly ? "slack_message" : useSlackTrigger ? "slack_message" : "youtube_upload",
+    id: useMarketingTemplate ? "wf-stub-marketing-001" : slackToLinkedInOnly ? "wf-stub-slack-linkedin-001" : useYouTubeTrigger ? "wf-stub-youtube-linkedin-001" : "wf-stub-slack-linkedin-001",
+    trigger: useMarketingTemplate ? "manual_trigger" : slackToLinkedInOnly ? "slack_message" : useYouTubeTrigger ? "youtube_upload" : "slack_message",
+    ...(useMarketingTemplate && { templateId: "personalize-marketing-emails" }),
     nodes,
     connections: edges,
   };
@@ -201,17 +225,19 @@ app.post("/export", (req, res) => {
     });
   }
 
-  // Validate required workflow fields
-  if (!workflow.nodes || !Array.isArray(workflow.nodes) || workflow.nodes.length === 0) {
-    return res.status(400).json({
-      error: "Invalid workflow: nodes array is required and must not be empty",
-    });
-  }
-
-  if (!workflow.connections || !Array.isArray(workflow.connections)) {
-    return res.status(400).json({
-      error: "Invalid workflow: connections array is required",
-    });
+  // Validate required workflow fields (when not using a template, nodes/connections required)
+  const useTemplate = Boolean(workflow.templateId);
+  if (!useTemplate) {
+    if (!workflow.nodes || !Array.isArray(workflow.nodes) || workflow.nodes.length === 0) {
+      return res.status(400).json({
+        error: "Invalid workflow: nodes array is required and must not be empty",
+      });
+    }
+    if (!workflow.connections || !Array.isArray(workflow.connections)) {
+      return res.status(400).json({
+        error: "Invalid workflow: connections array is required",
+      });
+    }
   }
 
   try {

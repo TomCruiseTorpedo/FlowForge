@@ -128,6 +128,14 @@
           "user": "string",
           "ts": "string"
         }
+      },
+      {
+        "id": "manual_trigger",
+        "name": "Manual Trigger",
+        "description": "When clicking 'Execute Workflow' or 'Test workflow' in n8n",
+        "category": "manual",
+        "parameters": {},
+        "output": {}
       }
     ],
     "actions": [
@@ -295,6 +303,14 @@
         "category": "transform",
         "parameters": {},
         "output": { "text": "string" }
+      },
+      {
+        "id": "personalize_with_ai",
+        "name": "Personalize with AI",
+        "description": "Personalize content using AI (e.g. customer data, sentiment, dynamic fields)",
+        "category": "ai",
+        "parameters": {},
+        "output": { "personalized_content": "string" }
       }
     ]
   },

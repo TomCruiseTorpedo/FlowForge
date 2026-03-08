@@ -4,6 +4,7 @@
  */
 
 import { buildSlackToLinkedInN8n } from './buildSlackToLinkedInN8n.js';
+import { loadTemplateN8n } from './loadTemplateN8n.js';
 
 /**
  * Returns true when workflow is Slack→LinkedIn (no Tweet/X).
@@ -34,7 +35,16 @@ function isSlackToLinkedInOnly(workflow) {
  * @returns {Object} n8n-compatible workflow JSON
  */
 export function convertToN8n(workflow) {
-  if (!workflow || !workflow.nodes || !workflow.connections) {
+  if (!workflow) {
+    throw new Error('Invalid workflow: missing workflow object');
+  }
+
+  // Template-based: return full n8n JSON from template file (e.g. marketing emails)
+  if (workflow.templateId) {
+    return loadTemplateN8n(workflow.templateId);
+  }
+
+  if (!workflow.nodes || !workflow.connections) {
     throw new Error('Invalid workflow: missing required fields');
   }
 

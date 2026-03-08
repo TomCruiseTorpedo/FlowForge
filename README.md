@@ -76,6 +76,18 @@ Optional: to point the web app at a different API URL, copy `apps/web/.env.examp
 
 **Testing n8n export:** See [How to test FlowForge exports in n8n](docs/n8n-testing-guide.md) (if the `docs/` folder is present in your clone).
 
+### Clone / public repo: what works out of the box
+
+If you clone the **public** repo (e.g. as a judge or random user), you get everything needed to run the app and generate **reliable, working n8n automations** (sans credentials):
+
+- **Slack → LinkedIn** — Full PoC demo workflow is built in code; export is a complete n8n JSON. Add your own Slack, LLM API key, and LinkedIn credentials in n8n after import.
+- **YouTube → LinkedIn** — Two-node workflow; export is runnable in n8n with credentials added.
+- **Marketing / personalize emails** — Keyword detection returns a simplified canvas; export uses the full 24-node n8n template from `packages/workflow-engine/templates/personalize-marketing-emails.json` (included in the repo).
+
+No server-side secrets or API keys are required to run the app; credentials are only needed inside n8n after you import the JSON.
+
+**Gitignored / private assets** (e.g. `docs/`, `AGENTS.md`, `.cline/`, `.beads/`, `scripts/internal/`) are **not** used by the running application. They are for development, agents, and internal process only. Their absence in a clone is **not** a bottleneck for any functionality.
+
 ### For judges / MVP demo (≤120s)
 
 1. Run the app locally (two terminals as above).
