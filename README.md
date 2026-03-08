@@ -117,6 +117,7 @@ The many real-world n8n examples you provided (e.g. in `docs/n8n template JSONs/
 2. In the web UI, use the prompt: **"When I post a message in Slack, create a LinkedIn post"**
 3. Click **Generate Workflow**, then **Export to n8n** (downloads `flowforge-n8n-export.json`).
 4. In n8n, import that JSON. The workflow is ready except for **credentials**: add your own Slack, LLM API key (e.g. OpenAI-compatible), and LinkedIn in n8n. No other changes needed.
+5. In Slack, post the message you want turned into a LinkedIn post. The prompt preserves full draft posts with minimal changes (plus 2–3 hashtags).
 
 The public repo does not include a separate demo script file; the steps above are the full demo.
 

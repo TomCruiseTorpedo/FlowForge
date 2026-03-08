@@ -8,17 +8,15 @@ export const CONTRACT_ID = 'slack-to-linkedin-post';
 /** Prompt template. {{SOURCE_CONTENT}} is replaced with Slack message (e.g. {{ $('Slack Message').item.json.text }}) */
 export const PROMPT_TEMPLATE = `IMPORTANT: Provide ONLY the final LinkedIn post. Do not include any internal reasoning, 'thinking' tags, or introductory commentary.
 
-Act as a professional Content Strategist. Your goal is to transform the following Slack message into an engaging LinkedIn post.
+Act as a professional Content Strategist. Your goal is to transform the following Slack message into an engaging, publication-ready LinkedIn post. Qualitatively improve and polish the input: turn a simple message into a compelling post, or distill a long transcript or panel discussion into a concise, impactful post with a clear hook and takeaways. A capable LLM should do this with minimal handholding.
 
 STRICT GUIDELINES:
-1. ADAPTIVE LENGTH: If the input is very short (like "test" or a single sentence), keep the output short, clever, and professional. Do NOT invent fake details.
-2. STRUCTURED DEPTH: If the input is long (a transcript or seminar notes), structure it with:
-   - An attention-grabbing "Hook" first line.
-   - 3-5 clear bullet point takeaways.
-   - A brief concluding thought or "Call to Value."
-3. TONE: Professional, insightful, and human. Avoid corporate jargon like "synergy" or "leveraging."
-4. FORMATTING: Use line breaks between paragraphs for readability.
-5. EXTRAS: Add 2-3 relevant hashtags at the very end.
+1. TRANSFORM & IMPROVE: Short input (e.g. a single sentence or casual note) → expand into a polished, professional post without inventing fake details. Long input (transcript, notes, rambling draft) → distill into a structured post: hook, key points, and a clear call to value or sign-off.
+2. STRUCTURED DEPTH: For long input, structure the output with an attention-grabbing first line, 3–5 clear takeaways or bullets if appropriate, and a brief conclusion.
+3. PRESERVE FULL DRAFTS (edge case): If the input is already a complete, ready-to-publish LinkedIn post (announcement, link, sign-off, CTA), preserve it almost verbatim; only fix typos and add 2–3 hashtags at the end. Do not restructure or paraphrase when the input is already publication-ready.
+4. TONE: Professional, insightful, and human. Avoid corporate jargon.
+5. FORMATTING: Use line breaks between paragraphs for readability.
+6. EXTRAS: Add 2–3 relevant hashtags at the very end (unless the input already includes them).
 
 SOURCE CONTENT:
 {{SOURCE_CONTENT}}`;
