@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2, Info } from "lucide-react";
+import { Loader2, Info, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -10,8 +10,19 @@ import {
 import WorkflowCanvas from "@/components/WorkflowCanvas";
 
 export default function WorkflowResult({ workflow, exporting, onExport }) {
+  const unsupported = workflow?.workflowMeta?.supportedIntent === false;
+  const unsupportedReason = workflow?.workflowMeta?.reason;
+
   return (
     <div className="space-y-4 mt-8 rounded-xl border border-[hsl(var(--forge-amber-border))] bg-secondary/80 p-6 ring-1 ring-[hsl(38_92%_50%_/_.1)]">
+      {unsupported && (
+        <div className="flex gap-2 p-3 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-200 text-sm">
+          <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <p>
+            {unsupportedReason || "This prompt doesn't match a supported workflow. Try one of the suggested prompts above for a tailored automation."}
+          </p>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-foreground">

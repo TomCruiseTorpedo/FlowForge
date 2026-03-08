@@ -3,10 +3,18 @@
 import { Lightbulb } from "lucide-react";
 
 const DEMO_PROMPTS = [
-  "When I post a message in Slack, create a LinkedIn post",
-  "Turn my Slack messages into LinkedIn posts",
-  "From Slack to LinkedIn: automate my posts",
-  "Personalize marketing emails using customer data and AI",
+  {
+    prompt: "When I post a message in Slack, create a LinkedIn post",
+    label: "Social / comms",
+  },
+  {
+    prompt: "When I upload a video to YouTube, create a LinkedIn post",
+    label: "Video / content",
+  },
+  {
+    prompt: "Personalize marketing emails using customer data and AI",
+    label: "Marketing",
+  },
 ];
 
 export default function DemoHint({ onTryPrompt }) {
@@ -16,10 +24,10 @@ export default function DemoHint({ onTryPrompt }) {
         <Lightbulb className="h-5 w-5 text-[hsl(var(--forge-amber))] flex-shrink-0 mt-0.5" />
         <div className="text-sm text-[hsl(var(--forge-amber-foreground))] space-y-2 min-w-0">
           <p>
-            <strong>Try it:</strong> Click a prompt below to try it — then export to n8n, import the file, and add your credentials.
+            <strong>Try it:</strong> Click a prompt below — each is a different workflow type. Export to n8n, import the file, and add your credentials.
           </p>
           <ul className="list-none space-y-1 pl-0 text-xs sm:text-sm">
-            {DEMO_PROMPTS.map((prompt, i) => (
+            {DEMO_PROMPTS.map(({ prompt, label }, i) => (
               <li key={i}>
                 <button
                   type="button"
@@ -28,11 +36,12 @@ export default function DemoHint({ onTryPrompt }) {
                 >
                   &quot;{prompt}&quot;
                 </button>
+                <span className="text-[10px] uppercase tracking-wider opacity-75 ml-1">({label})</span>
               </li>
             ))}
           </ul>
           <p className="text-xs opacity-90">
-            First three: Slack→LinkedIn demo. Last: full marketing-email template (no X/Twitter — most people don’t have paid API access).
+            Three different workflow types — social, video/content, and marketing. No X/Twitter (paid API).
           </p>
         </div>
       </div>

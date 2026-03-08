@@ -47,6 +47,8 @@ Pipeline:
 
 **Who this is for:** Anyone who has cloned the repo (e.g. a hackathon judge or a first-time user). You need **Node.js 20+** and **pnpm** installed.
 
+**Platform & shell:** The instructions below (and the helper scripts in `scripts/`) are written for **macOS with zsh**. This project was built on an Intel (x86_64) MacBook Pro running **macOS Sequoia 15.7.4** with **zsh**. On **Windows** (e.g. PowerShell or cmd) or **Linux**, you may need to adapt commands or run the app without the shell scripts — use two terminals and run `pnpm --filter api dev` and `pnpm dev` from the repo root instead of `./scripts/start-servers.sh`.
+
 ### How to run the app locally
 
 You need **two processes**: the API and the web app.
@@ -70,15 +72,21 @@ You need **two processes**: the API and the web app.
 
 4. **Open** [http://localhost:3000](http://localhost:3000) in your browser. The UI talks to the API at [http://localhost:4000](http://localhost:4000) for Generate and Export.
 
+**Optional — one command to start or restart both (macOS / zsh):** From repo root, run `./scripts/start-servers.sh`. It will stop any existing process on ports 3000 and 4000, start both servers in the background, and write logs to `logs/api.log` and `logs/web.log`. To stop: `./scripts/stop-servers.sh`. On Windows or Linux, use two terminals and the `pnpm` commands above instead.
+
 Optional: to point the web app at a different API URL, copy `apps/web/.env.example` to `apps/web/.env.local` and set `NEXT_PUBLIC_API_URL`. Default is `http://localhost:4000`.
 
 **Health check:** [http://localhost:4000/health](http://localhost:4000/health) should return `{"status":"ok","service":"flowforge-api"}`.
 
-**Testing n8n export:** See [How to test FlowForge exports in n8n](docs/n8n-testing-guide.md) (if the `docs/` folder is present in your clone).
+**Testing n8n export:** After exporting, import the downloaded JSON in n8n and add your credentials (Slack, LLM API key, LinkedIn). The steps in “For judges / MVP demo” below are sufficient. Extra guides (e.g. n8n testing, full demo script) live in the `docs/` folder, which is **not** included in the public repo — you don’t need them to run or export.
 
 ### Clone / public repo: what works out of the box
 
-If you clone the **public** repo (e.g. as a judge or random user), you get everything needed to run the app and generate **reliable, working n8n automations** (sans credentials):
+**What the public repo contains:** Everything needed to run the app and export n8n workflows is committed. That includes: app code (`apps/web`, `apps/api`), workflow engine and templates (`packages/workflow-engine/`, including `templates/personalize-marketing-emails.json`), node ontology and data (`packages/llm/data/`), and optional UI assets (`apps/web/public/`). No private or gitignored paths are required for functionality.
+
+**What the public repo does *not* contain:** The `docs/` folder, `AGENTS.md`, `.cline/`, `.beads/`, `.github/`, `scripts/internal/`, and `.vscode/` are listed in `.gitignore` and are not published. They are used only for development, agents, and internal process. **Their absence in a clone does not affect running the app or generating/exporting workflows.**
+
+If you clone the **public** repo (e.g. as a judge or random user), you get:
 
 - **Slack → LinkedIn** — Full PoC demo workflow is built in code; export is a complete n8n JSON. Add your own Slack, LLM API key, and LinkedIn credentials in n8n after import.
 - **YouTube → LinkedIn** — Two-node workflow; export is runnable in n8n with credentials added.
@@ -86,7 +94,22 @@ If you clone the **public** repo (e.g. as a judge or random user), you get every
 
 No server-side secrets or API keys are required to run the app; credentials are only needed inside n8n after you import the JSON.
 
-**Gitignored / private assets** (e.g. `docs/`, `AGENTS.md`, `.cline/`, `.beads/`, `scripts/internal/`) are **not** used by the running application. They are for development, agents, and internal process only. Their absence in a clone is **not** a bottleneck for any functionality.
+**Do the three suggested prompts produce legal/correct n8n workflows?**
+
+- **Slack → LinkedIn (demo):** Yes. Export uses **buildSlackToLinkedInN8n**, which outputs the **exact same content and structure** as the reverse-engineered demo workflow: same node types (Slack Trigger, Basic LLM Chain, OpenAI Chat Model, Code, LinkedIn), connections, prompt text (from `prompt-contracts/slack-to-linkedin-post.js`), and K2 CoT-strip script. Only workflow/node IDs (UUIDs) and credentials differ; add your Slack, LLM API key, and LinkedIn in n8n and it runs.
+- **YouTube → LinkedIn:** Yes, valid n8n JSON (Manual Trigger → YouTube → LinkedIn). n8n has no native “when I upload a video” trigger; the exported workflow is runnable manually or you can add a Schedule trigger to poll. Structure is correct; credentials needed in n8n.
+- **Marketing (personalize emails):** Yes. Export returns the full **real n8n template** from `templates/personalize-marketing-emails.json` (24 nodes). It was exported from n8n; import and add credentials as needed.
+
+**How robust is open-ended workflow generation?**
+
+Right now it is **not** robust. Only the **three suggested prompts** (Slack→LinkedIn, YouTube→LinkedIn, Marketing) are recognized and produce the correct, tailored workflow. Any other prompt (e.g. "Chat with my database", "When I get an email label it", "SEO audit and email report", "Telegram assistant") does **not** trigger an LLM or custom builder — the API falls back to the **Slack→LinkedIn demo workflow** and the UI shows a warning that the request isn't supported. So:
+
+- **Supported:** Exactly the three intents above (keyword-based: slack, youtube, or marketing/personalize/customer/email/sentiment/coupon/newsletter/campaign/segment).
+- **Unsupported:** Everything else. Response includes `workflowMeta: { supportedIntent: false, reason: "..." }` and the canvas shows an amber banner steering the user to the suggested prompts. Export still returns valid n8n (the demo workflow) so the app doesn't break.
+
+The many real-world n8n examples you provided (e.g. in `docs/n8n template JSONs/`) are the right reference for adding more template-based or future LLM-driven intents; until then, open-ended generation is intentionally explicit about being limited to the three supported flows. (Those example files live in the private `docs/` folder and are not in the public repo.)
+
+**Gitignored / private assets** — Summary: `docs/`, `AGENTS.md`, `.cline/`, `.beads/`, `.github/`, `scripts/internal/`, `.vscode/`, and `*.code-workspace` are **not** in the public repo and are **not** used by the running application. Only development and tooling use them. No clone is left non-functional by their exclusion.
 
 ### For judges / MVP demo (≤120s)
 
@@ -95,23 +118,24 @@ No server-side secrets or API keys are required to run the app; credentials are 
 3. Click **Generate Workflow**, then **Export to n8n** (downloads `flowforge-n8n-export.json`).
 4. In n8n, import that JSON. The workflow is ready except for **credentials**: add your own Slack, LLM API key (e.g. OpenAI-compatible), and LinkedIn in n8n. No other changes needed.
 
-See [docs/mvp-demo.md](docs/mvp-demo.md) for the full demo script and “only add credentials” story (if `docs/` is present in your clone).
+The public repo does not include a separate demo script file; the steps above are the full demo.
 
 ## Tech stack (to run FlowForge)
 
 - **Node.js** 20+
 - **pnpm** (see root `package.json` for `packageManager`)
 - **Next.js 15** (web app), **Express** (API), **React Flow** (canvas), **Tailwind CSS** (styling)
+- **Developed on:** Intel (x86_64) MacBook Pro, macOS Sequoia 15.7.4, zsh. Windows and Linux users can run the app with the same Node/pnpm stack but should use the two-terminal `pnpm` workflow instead of the provided shell scripts.
 
 Built with: Cursor, Antigravity, VS Code Copilot, Lovable (credited in the product).
 
 ## Multi-Agent Development
 
-This project can be used with multiple IDEs and agentic tools. Decision and task tracking may use Beads (`bd`). For contributor context, see project docs if present (e.g. `docs/` or internal wiki).
+This project can be used with multiple IDEs and agentic tools. Decision and task tracking may use Beads (`bd`). For contributor context, project docs may exist in a `docs/` folder or internal wiki; the **public** repo does not ship `docs/`, so this section applies only if you have that context (e.g. internal clone or maintainer).
 
 ## Documentation Structure
 
-If the `docs/` folder is present in your clone:
+The **public** repo does not include a `docs/` folder. If you have one (e.g. from an internal or full clone), its structure may include:
 
 - `docs/planning/` — planning and ideation
 - `docs/design/` — UX/UI and design (including `docs/design/assets/` for graphical assets, if any)
@@ -119,7 +143,7 @@ If the `docs/` folder is present in your clone:
 - `docs/notes/` — development notes
 - `docs/api/` — OpenAPI contract and API docs
 
-API contract source of truth: `docs/api/openapi.yaml`.
+API contract source of truth, when present: `docs/api/openapi.yaml`. Running and exporting the app do not depend on any of these paths.
 
 ## Roadmap
 

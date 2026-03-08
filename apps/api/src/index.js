@@ -107,6 +107,7 @@ app.post("/generate-workflow", (req, res) => {
   const useMarketingTemplate = !useSlackTrigger && !useYouTubeTrigger && marketingKeywords.some(kw => promptLower.includes(kw));
 
   let nodes, edges, triggerId;
+  let workflowMeta; // optional: { supportedIntent: false, reason } when prompt doesn't match any template
   if (useMarketingTemplate) {
     // Simplified canvas for template-based export: Manual Trigger → Personalize with AI → Send Email (ontology-valid)
     const DX = 280;
@@ -148,7 +149,9 @@ app.post("/generate-workflow", (req, res) => {
     ];
     triggerId = "node-trigger-youtube";
   } else {
-    // Default: offer the full Slack→LinkedIn demo for any other prompt
+    // Unsupported intent: prompt doesn't match Slack, YouTube, or marketing. We do NOT have open-ended
+    // LLM-based generation yet; only the 3 template intents are robust. Return the demo workflow but flag
+    // so the UI can show "not supported" and steer users to the suggested prompts.
     const DX = 240;
     const DY = 160;
     nodes = [
@@ -165,6 +168,7 @@ app.post("/generate-workflow", (req, res) => {
       { source: "node-code-js", target: "node-generate-linkedin" },
     ];
     triggerId = "node-trigger-slack";
+    workflowMeta = { supportedIntent: false, reason: 'Prompt does not match a supported workflow type. Only the three suggested prompts (Slack→LinkedIn, YouTube→LinkedIn, Marketing) produce tailored automations. This is the demo workflow instead.' };
   }
 
   const workflow = {
@@ -189,6 +193,7 @@ app.post("/generate-workflow", (req, res) => {
     workflow,
     nodes,
     edges,
+    ...(workflowMeta && { workflowMeta }),
   };
 
   // Optionally include n8n export if requested
