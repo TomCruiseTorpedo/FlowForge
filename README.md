@@ -135,12 +135,16 @@ Medium term:
 - Template library ("Armory")
 - Shareable workflow packs
 - **Assist users with n8n credential setup and troubleshooting** (guidance, not just export)
+- **Node asset library:** ontology + n8n node type → official names and icons so the canvas matches n8n’s UI (see *Node assets & n8n parity* below)
 
 Long term:
-
 - Multi-agent automation planning
 - Marketplace-style workflow remixing
 - Demo/default templates that work with minimal credential setup
+
+### Node assets & n8n parity (roadmap)
+
+Today the canvas uses a **small hardcoded map** of internal node labels to **Lucide icons** (e.g. MessageCircle for Slack, Linkedin for LinkedIn, Bot for OpenAI). The **ontology** (`packages/llm/data/node_ontology.json`) has `id` and `name` but **no** `n8nType` or `icon` field, and we do **not** ship n8n’s official node icons. So we do **not** yet have a robust library that matches n8n’s ontology, names, and official icons. For past-MVP, a proper asset library would: (1) extend the ontology with optional `n8nType` (e.g. `n8n-nodes-base.slackTrigger`) and `icon` (path or key); (2) map n8n node types to official icons (n8n stores these per-node in their repo as SVG/PNG; we could vendor or reference them); (3) drive canvas rendering from that single source so names and icons stay in sync with n8n.
 
 ## Repository
 
